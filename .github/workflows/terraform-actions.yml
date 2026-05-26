@@ -3,9 +3,8 @@ run-name: terraform continuous integration
 on: [push]
 
 jobs:
-    check-bash-version:
+    check-running-environment:
+        if: ${{ github.ref == 'refs/heads/main' }}
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
-            - uses: hashicorp/setup-terraform@v3
-            - run: terraform -v
+            - run: echo "Deploying to production environment, from branch $GITHUB_REF"
