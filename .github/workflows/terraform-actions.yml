@@ -36,7 +36,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
-          role-sesssion-name: ${{ steps.timestamp_generator.outputs.session_id }}
+          role-session-name: ${{ steps.timestamp_generator.outputs.session_id }}
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
