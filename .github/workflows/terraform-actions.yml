@@ -9,11 +9,25 @@ on:
 # @TODO change to env variable
 
 jobs:
-  assume-aws-role:
+  evaluate-target-environment:
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    steps:
+        - name: output environment variable
+          id: verbose_log
+          run: |
+            ENV_TO_RUN="dev"
+            echo "Currently take code from $GITHUB_REF, with env $ENV_TO_RUN"
+            echo "target_env=$ENV_TO_RUN" >> $GITHUB_OUTPUT
+    outputs:
+        env_value: ${{ steps.verbose_log.outputs.target_env }}
+
+  job-set-up-and-run:
+    runs-on: ubuntu-latest
+    needs: evaluate-target-environment
 
     # take the env first
-    environment: dev
+    environment: ${{ needs.evaluate-target-environment.outputs.env_value }}
 
     # permissions with env
     permissions:
@@ -21,7 +35,9 @@ jobs:
         contents: read
     steps:
       - name: git clone the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  
+      - name: terraform setup
+        uses: hashicorp/setup-terraform@v3
       # additional for easy tracking
       - name: set timestamp
         id: timestamp_generator
@@ -38,3 +54,10 @@ jobs:
       - name: sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
+      # terraform
+      - name: terraform init and validate
+        working-directory: ./env/${{ needs.evaluate-target-environment.outputs.env_value }}
+        run: |
+            terraform init
+            terraform validate
+            
