@@ -6,10 +6,7 @@ on:
     pull_request:
         branches: [main]
 
-# temp fix the deployment region here
 # @TODO change to env variable
-env:
-    AWS_REGION: "us-east-1"
 
 jobs:
   assume-aws-role:
@@ -34,9 +31,10 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v5.1.0
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
           role-session-name: ${{ steps.timestamp_generator.outputs.session_id }}
-      - name: Sts GetCallerIdentity
+      # verification
+      - name: sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
