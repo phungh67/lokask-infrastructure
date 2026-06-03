@@ -29,6 +29,7 @@ module "storage" {
   environment_code     = var.environment_code
   policy_specified     = 0
   region_code          = var.region_code
+  service_type         = "storage"
   cors_specified       = 0
   life_cycle_specified = 0
 }

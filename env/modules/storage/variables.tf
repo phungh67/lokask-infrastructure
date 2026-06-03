@@ -15,6 +15,10 @@ variable "environment_code" {
   type        = string
 }
 
+variable "service_type" {
+  type = string
+}
+
 variable "cors_specified" {
   type = number
 }
