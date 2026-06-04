@@ -28,13 +28,13 @@ fi
 # check the status of OLLAMA, otherwise, start it
 OLLAMA_STATUS=$(curl -s $OLLAMA_API_URL)
 
-if [ -z OLLAMA_STATUS ]; then
+if [[ -z OLLAMA_STATUS ]]; then
     echo "OLLAMA is not started yet, starting the ollama"
 else
     echo "OLLAMA is running"
 fi
 
-if [ -z PATH_DIR ]; then
+if [[ -z PATH_DIR ]]; then
     echo "Must set the PATH directory to work"
     echo "Instruction ollama-file-walk.sh path/to/search"
     exit 1
