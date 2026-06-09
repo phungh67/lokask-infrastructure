@@ -42,6 +42,9 @@ fi
 
 echo "$PATH_DIR"
 
-find $(pwd) -type f -print0 | while IFS= read -r -d '' file; do
+find "$PATH_DIR" \
+  \( -type d \( -name ".git" -o -name "node_modules" -o -name ".bun" -o -name "uploads" -o -name "ui" -o -name "scripts" \) -prune \) \
+  -o \
+  \( -type f ! -name "*.lock" ! -name "bun.lockb" ! -name "package*.json" -print0 \) | while IFS= read -r -d '' file; do
     echo "Processing: $file"
 done
