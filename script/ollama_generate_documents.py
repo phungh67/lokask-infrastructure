@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import ollama
+import shutil
 from typing import Optional
 
 class OllamaConnector:
@@ -39,10 +40,12 @@ class OllamaConnector:
         self.system_prompt = (
             "You are a documentation-engineer in a coporate."
             "You read each input file, try to create a comprehesive summary from that file."
-            "Each file should have overview, detail, note and warning(thing that are left unfinished)."
+            "Each file should have overview, detail, note and warning(thing that are left unfinished, most important, tech debt)."
             "Knowledge base: system design, infrastructure, cloud components, security engineer."
             "Not use emoji if unnecessary."
             "Generate structural README file in markdown format. Include generated figured if possible."
+            "You MUST start the markdown file with a structural navigation link back to the main compendium exactly like this:\n"
+            "`[⬅ Return to Main Compendium](../../README.md)`\n\n"
         )
 
     def toggle_log(self):
@@ -57,6 +60,14 @@ class OllamaConnector:
     def documentation_files(self, source_dir: str, output_dir: str):
         with open(source_dir, 'r', encoding='utf-8') as f:
             code_body = f.read()
+
+        extracted_notes = []
+        for line in code_body.split('\n'):
+            line_upper = line.upper()
+            if any(keyword in line_upper for keyword in ['TODO', 'FIXME', 'SECURITY', 'HACK', 'VULN']):
+                clean_note = line.replace('//', '').replace('/*', '').replace('*/', '').replace('--', '').replace('#', '').strip()
+                if clean_note:
+                    extracted_notes.append(clean_note)
         
         os.makedirs(os.path.dirname(output_dir), exist_ok=True)
 
@@ -127,7 +138,16 @@ class FileFilter:
             print(f"[ERROR] Failed to execute find command: {e.stderr.decode()}")
             return []
 
-    def generate_compedium(target_dir: str, files: list[str]):
+    def wipe_docs_directory(self, target_dir: str):
+        """Wipes the docs directory to ensure a fresh compendium build."""
+        docs_path = os.path.join(target_dir, "docs")
+        if os.path.exists(docs_path):
+            print(f"[LOG] Wiping existing documentation directory: {docs_path}")
+        shutil.rmtree(docs_path)
+    
+        os.makedirs(docs_path, exist_ok=True)
+
+    def generate_compedium(self, target_dir: str, files: list[str]):
         print("Begin to create the compedium.\n")
 
         tree_lines = [f"# Directory Map for {os.path.basename(target_dir)}\n"]
@@ -174,14 +194,30 @@ if __name__ == "__main__":
     ollama_connector = OllamaConnector()
     files_to_feed = file_filter.scan(target_dir)
 
+    file_filter.wipe_docs_directory(target_dir)
+
     print(f"Found {len(files_to_feed)} valid source files.\n")
+    
+    manifest_lines = [f"# Directory Map for {os.path.basename(target_dir)}\n"]
+
     for f in files_to_feed:
-        print(f"[]Now processing file {f}...")
+        print(f"[*] Now processing file {f}...")
         relative_path = os.path.relpath(f, target_dir)
         output_path = os.path.join(target_dir, "docs", relative_path)
-
         output_path = os.path.splitext(output_path)[0] + ".md"
-        ollama_connector.documentation_files(f, output_path)
+        
+        extracted_notes = ollama_connector.documentation_files(f, output_path)
+        
+        doc_rel_path = os.path.relpath(output_path, target_dir)
+        filename = os.path.basename(doc_rel_path)
+        manifest_entry = f"- [{filename}](./{doc_rel_path})"
+        
+        if extracted_notes:
+            manifest_entry += f" | **Findings:** {'; '.join(extracted_notes)}"
+            
+        manifest_lines.append(manifest_entry)
+
+    file_filter.generate_compedium(manifest_lines)
     
     
     
