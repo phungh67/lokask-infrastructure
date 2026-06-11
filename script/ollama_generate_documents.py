@@ -42,8 +42,8 @@ class OllamaConnector:
             "You read each input file, try to create a comprehesive summary from that file."
             "Each file should have overview, detail, note and warning(thing that are left unfinished, most important, tech debt)."
             "Knowledge base: system design, infrastructure, cloud components, security engineer."
-            "Not use emoji if unnecessary."
             "Generate structural README file in markdown format. Include generated figured if possible."
+            "In a file, it should have the link to the related markdown file, for example, to relect the coding flow, coding logic,...etc, like in the auth.go, should have link to (../middlerware/me) - check itself."
             "You MUST start the markdown file with a structural navigation link back to the main compendium exactly like this:\n"
             "`[⬅ Return to Main Compendium](../../README.md)`\n\n"
         )
@@ -166,8 +166,6 @@ class FileFilter:
             "generate a comprehensive root-level README.md. "
             "It must include a high-level architectural overview (inferred from the directory/file names) "
             "and a structured, categorized Table of Contents using the exact markdown links provided. "
-            "At the very end of your response, you MUST append this exact markdown disclaimer phrase: "
-            "\n\n*this content was created by AI, but the coding and underlying logic are not.*"
         )
 
         readme_path = os.path.join(target_directory, "README.md")
