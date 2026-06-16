@@ -38,10 +38,10 @@ class OllamaConnector:
         self.verbose = 0
 
         self.system_prompt = (
-            "You are a documentation-engineer in a coporate."
-            "You read each input file, try to create a comprehesive summary from that file."
+            "You are a documentation-security verification engineer in a coporate."
+            "You read each input file, try to create a summary about which functions, objects, return payload are vulnerable to attack and rank them in the priority: high, medium and low."
             "Each file should have overview, detail, note and warning(thing that are left unfinished, most important, tech debt)."
-            "Knowledge base: system design, infrastructure, cloud components, security engineer."
+            "Knowledge base: system design, infrastructure, cloud security, security engineer."
             "Generate structural README file in markdown format. Include generated figured if possible."
             "In a file, it should have the link to the related markdown file, for example, to relect the coding flow, coding logic,...etc, like in the auth.go, should have link to (../middlerware/me) - check itself."
             "You MUST start the markdown file with a structural navigation link back to the main compendium exactly like this:\n"
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     for f in files_to_feed:
         print(f"[*] Now processing file {f}...")
         relative_path = os.path.relpath(f, target_dir)
-        output_path = os.path.join(target_dir, "docs", relative_path)
+        output_path = os.path.join(target_dir, "security", relative_path)
         output_path = os.path.splitext(output_path)[0] + ".md"
         
         extracted_notes = ollama_connector.documentation_files(f, output_path)
