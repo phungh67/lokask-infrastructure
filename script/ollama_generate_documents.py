@@ -192,7 +192,7 @@ if __name__ == "__main__":
     ollama_connector = OllamaConnector()
     files_to_feed = file_filter.scan(target_dir)
 
-    file_filter.wipe_docs_directory(target_dir)
+    # file_filter.wipe_docs_directory(target_dir)
 
     print(f"Found {len(files_to_feed)} valid source files.\n")
     
@@ -215,7 +215,7 @@ if __name__ == "__main__":
             
         manifest_lines.append(manifest_entry)
 
-    file_filter.generate_compedium(manifest_lines)
+    file_filter.generate_compedium(target_dir, manifest_lines)
     
     
     
